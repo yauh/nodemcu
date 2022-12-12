@@ -60,7 +60,10 @@ while True:
     display.text("Prs: " + bme.values[1], 0, 30)
     # skip humidity since my sensor does not give anything but 0.00%
     # display.text("Hum: " + bme.values[2], 0, 45)
-    current_time = f"{str(time.gmtime()[3]):02}:{str(time.gmtime()[4]):02}:{str(time.gmtime()[5]):02}"
+    current_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
+    
+    print(current_time)
     display.text(current_time, 25, 50)
+    
     display.show()
     sleep(5)
