@@ -1,5 +1,12 @@
-# nodemcu
-NodeMCU ESP8266 Code samples in MicroPython
+# NodeMCU ESP8266 Code samples in MicroPython
+
+Sample scripts follow the naming convention `<sensor>_script.py`. These samples are minimal on purpose.
+
+The is currently `nodemcu.py` and should be renamed to `main.py` when copied to the ESP8266.
+
+Tested with NodeMCU v2 Amica and NodeMCU v3 Lolin
+
+**Beware** Using [Mu Editor](https://codewith.mu) did not allow me to transfer files to the v2 model. Instead I used [Visual Studio Code](https://code.visualstudio.com) with the [PyMakr extension](https://github.com/pycom/pymakr-vsc). This works without any issues on a M1 MacBook using a USB hub.
 
 ## Connecting hardware
 
