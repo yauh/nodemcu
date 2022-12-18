@@ -29,3 +29,16 @@ Variant with 4 wires, using I2C
 | GPIO 0 (D3) | SDA | blue |
 
 It also requires the [bme280_float.py library](https://github.com/robert-hh/BME280/).
+
+### BME680 environmental sensor
+
+Variant with 6 pins, using I2C
+
+| ESP8266 NodeMCU | BME680 | Color |
+| --- | --- | --- |
+| 3.3V | VCC | yellow |
+| GND| GND | orange |
+| GPIO 2 (D4) | SCL | red |
+| GPIO 0 (D3) | SDA | brown |
+
+It also requires the [bme680.py library](https://raw.githubusercontent.com/RuiSantosdotme/Random-Nerd-Tutorials/master/Projects/ESP-MicroPython/bme680.py).
