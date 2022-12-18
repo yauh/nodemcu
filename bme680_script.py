@@ -7,7 +7,7 @@ import time
 from time import sleep
 
 # configure BME680
-i2c = I2C(scl=Pin(5), sda=Pin(4))
+i2c = I2C(scl=Pin(2), sda=Pin(0))
 bme = BME680_I2C(i2c=i2c)
 
 # start taking measurements
