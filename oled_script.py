@@ -1,23 +1,29 @@
+# import dependencies for SSD1306
 from machine import Pin, SoftSPI
 import ssd1306
+
+# import network and more
+import network
+import ntptime
+import time
 from time import sleep
 
+# configure SSD1306
 spi = SoftSPI(
     baudrate=500000, polarity=1, phase=0, sck=Pin(14), mosi=Pin(13), miso=Pin(12)
 )
-
 dc = Pin(5)  # data/command
 rst = Pin(4)  # reset
 cs = Pin(15)  # chip select, some modules do not have a pin for this
-
 display = ssd1306.SSD1306_SPI(128, 64, spi, dc, rst, cs)
 
+# boot splash screen
 display.text("NodeMCU v3", 0, 0)
-display.text("I am ready", 0, 16)
+display.text("Ready", 0, 16)
 display.show()
+sleep(1)
 
-sleep(5)
-
+# show pretty stuff
 display.fill(0)
 display.fill_rect(0, 0, 32, 32, 1)
 display.fill_rect(2, 2, 28, 28, 0)
