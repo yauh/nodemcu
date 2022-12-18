@@ -6,13 +6,28 @@ import ssd1306
 from machine import Pin, I2C
 from bme680 import *
 
-# import network and more
+# import network
+try:
+  import usocket as socket
+except:
+  import socket
 import network
+
+# time related libs
 import ntptime
 import time
 from time import sleep
+
+# import os to access the filesystem
 import os
+import sys
+
+# import lib to read json config
 import ujson
+
+# clean up before we start
+import gc
+gc.collect()
 
 # configure SSD1306
 spi = SoftSPI(
@@ -28,30 +43,67 @@ i2c = I2C(scl=Pin(2), sda=Pin(0))
 bme = BME680_I2C(i2c=i2c)
 
 # read network config
-network_cfg = {}
+config = {}
 try:
-    with open("network.cfg") as fp:
-	    network_cfg = ujson.load(fp)
+    with open("config.cfg") as fp:
+	    config = ujson.load(fp)
 except OSError:  # open failed
-   print("no network config found")
-   network_cfg['ssid'] = "nodemcu-esp8266"
-   network_cfg['passphrase'] = "my-network-passphrase"
+    display.text("NodeMCU v3", 0, 0)
+    display.text("config file missing", 0, 16)
+    display.text("stopping...", 0, 32)
+    display.show()
+    print("no network config found")
+    config = {"wifi": {
+      "ssid:":"nodemcu-esp8266",
+      "passphrase":"my-network-passphrase"}
+      }
+    # //TODO
+    # enable access point mode
+    # allow configuration via web server
+    sys.exit("no config file config.cfg found")
 
 # boot splash screen
-display.text("NodeMCU v3", 0, 0)
-display.text("Ready", 0, 16)
-display.text(network_cfg['ssid'], 0, 32)
+display.text("Welcome", 0, 0)
+display.text("to NodeMCU", 0, 16)
 display.show()
 sleep(1)
+display.fill(0)
+
+# print config contents
+for k,v in config.items():
+    print(k, ':', v)
+
+# connect to existing network
+wifi = network.WLAN(network.STA_IF)
+
+wifi.active(True)
+wifi.connect(config['wifi']['ssid'], config['wifi']['passphrase'])
+
+while wifi.isconnected() == False:
+  display.text("Waiting for", 0, 0)
+  display.text("connection to", 0, 16)
+  display.text(config['wifi']['ssid'], 0, 24)
+  display.show()
+  pass
+
+display.fill(0)
+display.text("Connected to", 0, 0)
+display.text(config['wifi']['ssid'], 0, 24)
+display.show()
+print('Connection successful')
+print(wifi.ifconfig())
+ntptime.settime()
+
+
 
 # bring up network
 # display.fill(0)
 # wifi = network.WLAN(network.STA_IF)
 # wifi.active(True)
-# wifi.connect(network_cfg['ssid'], network_cfg['passphrase'])
+# wifi.connect(config['wifi']['ssid'], config['wifi']['passphrase'])
 # while wifi.isconnected() == False:
 #     display.text("Connecting to", 0, 0)
-#     display.text(network_cfg['ssid'], 0, 20)
+#     display.text(config['wifi']['ssid'], 0, 20)
 #     display.show()
 # display.text("Connected", 15, 45)
 # # when connected, set time
@@ -59,18 +111,23 @@ sleep(1)
 # display.show()
 # sleep(2)
 
-# # start taking measurements
-# counter = 0
-# while True:
-#     display.fill(0)
-#     counter += 1
-#     display.text("BME680 values", 0, 0)
-#     display.text("Tmp: " + bme.values[0], 0, 15)
-#     display.text("Prs: " + bme.values[1], 0, 30)
-#     # skip humidity since my sensor does not give anything but 0.00%
-#     # display.text("Hum: " + bme.values[2], 0, 45)
-#     current_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
-#     display.text(current_time, 25, 50)
-    
-#     display.show()
-#     sleep(5)
+# start taking measurements
+while True:
+    display.fill(0)
+    temperature = str(round(bme.temperature, 2)) + ' C'
+    humidity = str(round(bme.humidity, 2)) + ' %'
+    pressure = str(round(bme.pressure, 2)) + ' hPa'
+    gas = str(round(bme.gas/1000, 2)) + ' KOhms'
+    current_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
+    display.text(current_time, 0, 0)
+    display.text("Tmp: " + temperature, 0, 15)
+    display.text("Prs: " + pressure, 0, 30)
+    display.text("Hum: " + humidity, 0, 45) 
+    display.show()
+    sleep(2)
+    display.fill(0)
+    display.text(current_time, 0, 0)
+    display.text("Tmp: " + temperature, 0, 15)
+    display.text("Prs: " + pressure, 0, 30)
+    display.text("gas: " + gas, 0, 45)
+    sleep(2)
