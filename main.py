@@ -95,22 +95,6 @@ print(wifi.ifconfig())
 ntptime.settime()
 
 
-
-# bring up network
-# display.fill(0)
-# wifi = network.WLAN(network.STA_IF)
-# wifi.active(True)
-# wifi.connect(config['wifi']['ssid'], config['wifi']['passphrase'])
-# while wifi.isconnected() == False:
-#     display.text("Connecting to", 0, 0)
-#     display.text(config['wifi']['ssid'], 0, 20)
-#     display.show()
-# display.text("Connected", 15, 45)
-# # when connected, set time
-# ntptime.settime()  #
-# display.show()
-# sleep(2)
-
 start_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
 
 # start taking measurements
@@ -121,7 +105,7 @@ while True:
     pressure = str(round(bme.pressure, 2)) + ' hPa'
     gas = str(round(bme.gas/1000, 2)) + ' KOhms'
     current_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
-    display.text(current_time, 0, 0)
+    display.text(start_time, 0, 0)
     display.text("Tmp: " + temperature, 0, 13)
     display.text("Prs: " + pressure, 0, 26)
     display.text("Hum: " + humidity, 0, 39)
