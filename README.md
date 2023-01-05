@@ -8,6 +8,12 @@ Tested with NodeMCU v2 Amica and NodeMCU v3 Lolin
 
 **Beware** Using [Mu Editor](https://codewith.mu) did not allow me to transfer files to the v2 model. Instead I used [Visual Studio Code](https://code.visualstudio.com) with the [PyMakr extension](https://github.com/pycom/pymakr-vsc). This works without any issues on a M1 MacBook using a USB hub.
 
+## Network connectivity
+
+### MQTT client
+
+Use [mqtt_as.py](https://github.com/peterhinch/micropython-mqtt/tree/master/mqtt_as) instead of standard mqtt libraries.
+
 ## Connecting hardware
 
 ### SSD1306 OLED Display
