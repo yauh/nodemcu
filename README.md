@@ -10,9 +10,41 @@ Tested with NodeMCU v2 Amica and NodeMCU v3 Lolin
 
 ## Network connectivity
 
+All configuration in handled by a config.cfg text file on the device. It contains a JSON-object. See the config_sample.cfg file for the structure.
+
+### Wifi
+
+You must configure the two parameters
+
+- ssid
+- passphrase
+
+```
+ "wifi":
+  { 
+    "ssid":"your_ssid_goes_here",
+    "passphrase":"this is your wifi passphrase"
+  }
+```
+
 ### MQTT client
 
-Use [mqtt_as.py](https://github.com/peterhinch/micropython-mqtt/tree/master/mqtt_as) instead of standard mqtt libraries.
+The nodemcu will connect to an MQTT broker and publish the values measured by the BME680 (adjust the sensor if needed, for now BME680 is hardcoded).
+
+The parameters should be rather self-explanatory.
+
+```
+  "mqtt":
+  {
+    "client":"nodemcu",
+    "server":"192.168.0.44",
+    "port":1883,
+    "user":"nodemcu",
+    "password":"k1swah3l1",
+    "topic":"nodemcu"
+  }
+```
+
 
 ## Connecting hardware
 
@@ -55,3 +87,7 @@ Variant with 6 pins, using I2C
 | GPIO 0 (D3) | SDA | brown |
 
 It also requires the [bme680.py library](https://raw.githubusercontent.com/RuiSantosdotme/Random-Nerd-Tutorials/master/Projects/ESP-MicroPython/bme680.py).
+
+# TODO
+
+Consider switching to [mqtt_as.py](https://github.com/peterhinch/micropython-mqtt/tree/master/mqtt_as) instead of standard mqtt libraries in the future.
