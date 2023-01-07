@@ -8,6 +8,15 @@ Tested with NodeMCU v2 Amica and NodeMCU v3 Lolin
 
 **Beware** Using [Mu Editor](https://codewith.mu) did not allow me to transfer files to the v2 model. Instead I used [Visual Studio Code](https://code.visualstudio.com) with the [PyMakr extension](https://github.com/pycom/pymakr-vsc). This works without any issues on a M1 MacBook using a USB hub.
 
+## Get micropython on the ESP8266
+
+Using esptool.py it is a simple command to flash the 2M+ firmware to the device (see [the docs for details](https://docs.micropython.org/en/latest/esp8266/tutorial/intro.html)):
+
+```
+esptool.py --port /dev/tty.usbserial-0001 erase_flash
+esptool.py --port /dev/tty.usbserial-0001 --baud 115200 write_flash --flash_size=detect 0 esp8266-20220618-v1.19.1.bin
+```
+
 ## Network connectivity
 
 All configuration in handled by a config.cfg text file on the device. It contains a JSON-object. See the config_sample.cfg file for the structure.

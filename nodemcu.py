@@ -25,6 +25,9 @@ import sys
 # import lib to read json config
 import ujson
 
+# import lib for mqtt
+from umqtt.simple import MQTTClient
+
 # clean up before we start
 import gc
 gc.collect()
@@ -73,61 +76,81 @@ display.fill(0)
 for k,v in config.items():
     print(k, ':', v)
 
+# Wifi config
+WIFI_SSID = config['wifi']['ssid']
+WIFI_PASSPHRASE = config['wifi']['passphrase']
+
 # connect to existing network
 wifi = network.WLAN(network.STA_IF)
 
 wifi.active(True)
-wifi.connect(config['wifi']['ssid'], config['wifi']['passphrase'])
+wifi.connect(WIFI_SSID, WIFI_PASSPHRASE)
 
 while wifi.isconnected() == False:
   display.text("Waiting for", 0, 0)
   display.text("connection to", 0, 16)
-  display.text(config['wifi']['ssid'], 0, 24)
+  display.text(WIFI_SSID, 0, 24)
   display.show()
   pass
 
 display.fill(0)
 display.text("Connected to", 0, 0)
-display.text(config['wifi']['ssid'], 0, 24)
+display.text(WIFI_SSID, 0, 24)
 display.show()
 print('Connection successful')
 print(wifi.ifconfig())
 ntptime.settime()
+start_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
+print('Time is set to ' + start_time)
 
+# MQTT config
+MQTT_CLIENT = config['mqtt']['client']
+MQTT_TOPIC = config['mqtt']['topic']
+MQTT_SERVER = config['mqtt']['server']
+MQTT_PORT = config['mqtt']['port']
+MQTT_USER = config['mqtt']['user']
+MQTT_PASSWORD = config['mqtt']['password']
+MQTT_KEEPALIVE = 60
 
+MQTT_TOPIC_TEMPERATURE = MQTT_TOPIC + "/bme680/temperature"
+MQTT_TOPIC_HUMIDITY = MQTT_TOPIC + "/bme680/humidity"
+MQTT_TOPIC_PRESSURE = MQTT_TOPIC + "/bme680/pressure"
+MQTT_TOPIC_GAS = MQTT_TOPIC + "/bme680/gas"
 
-# bring up network
-# display.fill(0)
-# wifi = network.WLAN(network.STA_IF)
-# wifi.active(True)
-# wifi.connect(config['wifi']['ssid'], config['wifi']['passphrase'])
-# while wifi.isconnected() == False:
-#     display.text("Connecting to", 0, 0)
-#     display.text(config['wifi']['ssid'], 0, 20)
-#     display.show()
-# display.text("Connected", 15, 45)
-# # when connected, set time
-# ntptime.settime()  #
-# display.show()
-# sleep(2)
+# set up mqtt connection
+print('connecting to mqtt broker at ' + MQTT_SERVER)
+mqttc = MQTTClient(MQTT_CLIENT, MQTT_SERVER, MQTT_PORT, MQTT_USER, MQTT_PASSWORD, MQTT_KEEPALIVE)
+
+mqttc.connect()
 
 # start taking measurements
 while True:
     display.fill(0)
-    temperature = str(round(bme.temperature, 2)) + ' C'
-    humidity = str(round(bme.humidity, 2)) + ' %'
-    pressure = str(round(bme.pressure, 2)) + ' hPa'
-    gas = str(round(bme.gas/1000, 2)) + ' KOhms'
     current_time = f"{time.gmtime()[3]:02}:{time.gmtime()[4]:02}:{time.gmtime()[5]:02}"
-    display.text(current_time, 0, 0)
-    display.text("Tmp: " + temperature, 0, 15)
-    display.text("Prs: " + pressure, 0, 30)
-    display.text("Hum: " + humidity, 0, 45) 
+    print('Measuring at ' + current_time)
+    temperature_value = str(round(bme.temperature, 2)) # °C
+    humidity_value = str(round(bme.humidity, 2)) # % 
+    pressure_value = str(round(bme.pressure, 2)) # hPa
+    gas_value = str(round(bme.gas/1000, 2)) # KOhms
+
+    temperature_display = temperature_value + ' C'
+    humidity_display = humidity_value + ' %'
+    pressure_display = pressure_value + ' hPa'
+    gas_display = gas_value + ' KOhms'
+    
+    display.text(start_time, 0, 0)
+    display.text("Tmp: " + temperature_display, 0, 13)
+    display.text("Prs: " + humidity_display, 0, 26)
+    display.text("Hum: " + pressure_display, 0, 39)
+    # display.text("gas: " + gas_display, 0, 52)
+    display.text(current_time, 0, 52)
     display.show()
-    sleep(2)
-    display.fill(0)
-    display.text(current_time, 0, 0)
-    display.text("Tmp: " + temperature, 0, 15)
-    display.text("Prs: " + pressure, 0, 30)
-    display.text("gas: " + gas, 0, 45)
-    sleep(2)
+    print('publishing to mqtt')
+    mqttc.publish( MQTT_TOPIC_TEMPERATURE.encode(), temperature_value.encode())
+    mqttc.publish( MQTT_TOPIC_HUMIDITY.encode(), humidity_value.encode())
+    mqttc.publish( MQTT_TOPIC_PRESSURE.encode(), pressure_value.encode())
+    mqttc.publish( MQTT_TOPIC_GAS.encode(), gas_value.encode())
+    sleep(60)
+    gc.collect()
+    # //TODO: Consider building and switching to https://github.com/peterhinch/micropython-mqtt
+    
